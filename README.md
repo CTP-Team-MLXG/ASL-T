@@ -1,4 +1,4 @@
-<img align="right" src="img/colgan-asl-logo.jpg" alt="colgan-asl-logo" width="150">
+<img align="right" src="imgs/colgan-asl-logo.jpg" alt="colgan-asl-logo" width="150">
 
 # ASL-T
 
