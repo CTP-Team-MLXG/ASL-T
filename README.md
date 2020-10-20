@@ -23,4 +23,4 @@ As for the dataset that we will be using to train our model is taken from [Kaggl
 - [Xuejin Gao]
 
 [Michelle Lucero]: https://github.com/MichelleLucero
-[Xuejin Gao]: https://github.com/xuejin13
+[Xuejin Gao]: https://github.com/xuejingao
