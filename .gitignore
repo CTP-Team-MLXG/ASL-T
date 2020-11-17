@@ -1,3 +1,6 @@
 .DS_Store
 
+/backend/pickle_files/
+/backend/data/
+
 
