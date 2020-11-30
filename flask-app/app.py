@@ -12,16 +12,16 @@ import skimage
 import skimage.io
 import skimage.transform
 
+import werkzeug.utils
+
 app = flask.Flask(__name__, template_folder='templates')
 
-path_to_vectorizer = 'models/vectorizer.pkl'
-path_to_text_classifier = 'models/text-classifier.pkl'
-path_to_image_classifier = 'models/image-classifier.pkl'
 
+# ASL File Paths
 path_to_asl_categories = 'models/CATEGORIES.pickle'
-
 path_to_asl_classifier = 'models/cnn1'
 
+# Saving to variables for usage
 try:
     asl_cnn_classifier = tensorflow.keras.models.load_model(path_to_asl_classifier)
 except EOFError as e:
@@ -30,14 +30,21 @@ except EOFError as e:
 with open(path_to_asl_categories, 'rb') as f:
     ASL_CATEGORIES = pickle.load(f)
 
-with open(path_to_vectorizer, 'rb') as f:
-    vectorizer = pickle.load(f)
 
-with open(path_to_text_classifier, 'rb') as f:
-    model = pickle.load(f)
+# For Uploading Images
+UPLOAD_FOLDER = 'static/uploads/'
+app.secret_key = "secret key" 
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
-with open(path_to_image_classifier, 'rb') as f:
-    image_classifier = pickle.load(f)
+# ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
+
+# Create Upload directory
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -47,16 +54,34 @@ def main():
         return(flask.render_template('main.html'))
 
     if flask.request.method == 'POST':
+
+        if 'file' not in flask.request.files:
+            return flask.redirect(flask.request.url)
+
+        # print(dir(flask.request))
         # Get file object from user input.
         file = flask.request.files['file']
-        
-        if file:
+
+        if file.filename == '':
+            return flask.redirect(flask.request.url)
+
+        if file and allowed_file(file.filename):
+            # Save the image to the backend static folder
+            filename = werkzeug.utils.secure_filename(file.filename)
+            path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(path)
+            
+            # Read image file
+            img = cv2.imread(path)
+
+            cv2.imwrite(path, cv2.resize(img, (300, 300)))
             # Read image file string data
-            filestr = file.read()
+            # filestr = file.read()
+            
             # Convert string data to np arr
-            npimg = np.frombuffer(filestr, np.uint8)
+            # npimg = np.frombuffer(filestr, np.uint8)
             # Convert np arr to image
-            img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
+            # img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
 
             # Resize the image to match the input the model will accept
             img = cv2.resize(img, (64, 64))
@@ -64,53 +89,42 @@ def main():
             img = np.asarray([img])
 
             # Get prediction of image from classifier
-            # predictions = asl_cnn_classifier.predict([img])
             prediction = np.argmax(asl_cnn_classifier.predict(img), axis=-1)
-
-            # pred_proba = asl_cnn_classifier.predict_proba(img)
-            # print(pred_proba.round(2))
 
             # Get the value at index of CATEGORIES
             prediction = ASL_CATEGORIES[prediction[0]]
+            
+            return flask.render_template('main.html', 
+                prediction=prediction,
+                filename=filename)
+        else:
+            return flask.redirect(flask.request.url)
 
-            return flask.render_template('main.html', prediction=prediction)
+        # if file:
+        #     # Read image file string data
+        #     filestr = file.read()
+            
+        #     # Convert string data to np arr
+        #     npimg = np.frombuffer(filestr, np.uint8)
+        #     # Convert np arr to image
+        #     img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
+
+        #     # Resize the image to match the input the model will accept
+        #     img = cv2.resize(img, (64, 64))
+        #     # Reshape the image into shape (1, 64, 64, 3)
+        #     img = np.asarray([img])
+
+        #     # Get prediction of image from classifier
+        #     prediction = np.argmax(asl_cnn_classifier.predict(img), axis=-1)
+
+        #     # Get the value at index of CATEGORIES
+        #     prediction = ASL_CATEGORIES[prediction[0]]
+
+        #     return flask.render_template('main.html', 
+        #         prediction=prediction,
+        #         image=file)
 
     return(flask.render_template('main.html'))
-
-
-    # if flask.request.method == 'POST':
-        # # Get the input from the user.
-        # user_input_text = flask.request.form['user_input_text']
-        
-        # # Turn the text into numbers using our vectorizer
-        # X = vectorizer.transform([user_input_text])
-        
-        # # Make a prediction 
-        # predictions = model.predict(X)
-        
-        # # Get the first and only value of the prediction.
-        # prediction = predictions[0]
-
-        # # Get the predicted probabs
-        # predicted_probas = model.predict_proba(X)
-
-        # # Get the value of the first, and only, predicted proba.
-        # predicted_proba = predicted_probas[0]
-
-        # # The first element in the predicted probabs is % democrat
-        # precent_democrat = predicted_proba[0]
-
-        # # The second elemnt in predicted probas is % republican
-        # precent_republican = predicted_proba[1]
-
-
-        # return flask.render_template('main.html', 
-        #     input_text=user_input_text,
-        #     result=prediction,
-        #     precent_democrat=precent_democrat,
-        #     precent_republican=precent_republican)
-
-
 
 
 @app.route('/input_values/', methods=['GET', 'POST'])
@@ -136,48 +150,16 @@ def input_values():
     return(flask.render_template('input_values.html'))
 
 
-@app.route('/images/')
-def images():
-    return flask.render_template('images.html')
+@app.route('/about/')
+def about():
+    return flask.render_template('about.html')
 
 
-@app.route('/bootstrap/')
-def bootstrap():
-    return flask.render_template('bootstrap.html')
+@app.route('/contributors/')
+def contributors():
+    return flask.render_template('contributors.html')
 
-
-@app.route('/classify_image/', methods=['GET', 'POST'])
-def classify_image():
-    if flask.request.method == 'GET':
-        # Just render the initial form, to get input
-        return(flask.render_template('classify_image.html'))
-
-    if flask.request.method == 'POST':
-        # Get file object from user input.
-        file = flask.request.files['file']
-
-        if file:
-            # Read the image using skimage
-            img = skimage.io.imread(file)
-
-            # Resize the image to match the input the model will accept
-            img = skimage.transform.resize(img, (28, 28))
-
-            # Flatten the pixels from 28x28 to 784x0
-            img = img.flatten()
-
-            # Get prediction of image from classifier
-            predictions = image_classifier.predict([img])
-
-            # Get the value of the prediction
-            prediction = predictions[0]
-
-            return flask.render_template('classify_image.html', prediction=str(prediction))
-
-    return(flask.render_template('classify_image.html'))
-
-
-
+    
 
 if __name__ == '__main__':
     app.run(debug=True)

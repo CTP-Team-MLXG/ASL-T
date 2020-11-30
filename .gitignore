@@ -3,4 +3,4 @@
 /backend/pickle_files/
 /backend/data/
 
-
+/flask-app/static/uploads

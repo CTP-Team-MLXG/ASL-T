@@ -1,0 +1,19 @@
+img.avatar {
+  height: 250px;
+  width: 250px;
+  border-radius: 50%;
+}
+
+.card-body {
+  width: 80%;
+  padding: 10px;
+}
+
+div.album {
+  border-radius: 20px;
+  padding: 10px;
+}
+
+div.container {
+  /* padding: 10px; */
+}
