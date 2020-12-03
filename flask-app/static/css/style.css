@@ -113,6 +113,6 @@ body {
 /* 
  * Indenting paragraph
  */
-div.about {
+.indent {
   text-indent: 50px;
 }
