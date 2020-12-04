@@ -9,19 +9,27 @@
       crossorigin="anonymous"
     />
 
-	<!-- Whole Page CSS -->
+	  <!-- Whole Page CSS -->
     <link
       rel="stylesheet"
       type="text/css"
       href="{{ url_for('static',filename='/css/style.css') }}"
-	/>
-	<!-- Image CSS -->
-	<link
+	  />
+    
+    <!-- Image CSS -->
+    <link
       rel="stylesheet"
       type="text/css"
       href="{{ url_for('static',filename='/css/image.css') }}"
     />
 
+    <!-- Image Upload CSS -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static',filename='/css/image_upload.css') }}"
+    />
+    
     <title>ASL-Translator</title>
   </head>
 
@@ -49,18 +57,23 @@
       <main role="main" class="inner cover">
 		<h1 class="cover-heading">ASL Image Classifier</h1>
 
-		<div class="jumbotron bg-secondary mb-2">
-			<h2>Upload Image Here </h2>
-			<form method=post enctype=multipart/form-data class="mb-2">
-				<input type=file name=file autocomplete="off" required>
+		<div id="image-upload">
+      <form method=post enctype=multipart/form-data class="mb-2">
+        <div class="bg-secondary mb-2">
+          
+          <img id="cloud_upload" src="../static/imgs/cloud_upload.png">
+          
+          <input type=file class="btn btn-secondary upload-btn" name=file autocomplete="off" required>
+          
+          {% if prediction and filename %}
+            <div class="text-center">
+              <img class="rounded" src="{{ url_for('static', filename='uploads/' + filename) }}">
+            </div>
+            <h3 class="text-center"> Prediction for input image is: {{ prediction }} </h3>
+          {% endif %}
+        </div>
 				<input type=submit class="btn btn-secondary" value=Upload>
 			</form>
-			{% if prediction and filename %}
-				<div class="text-center mb-2">
-					<img class="rounded" src="{{ url_for('static', filename='uploads/' + filename) }}">
-				  </div>
-				<p class="text-center"> Prediction for input image is: {{ prediction }} </p>
-			{% endif %}
 		</div>
 
 		<!-- Default checked -->
