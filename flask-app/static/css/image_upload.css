@@ -1,0 +1,77 @@
+#image-upload .bg-secondary {
+    border: 2px dashed #fff;
+    background-color: rgba(255, 255, 255, 0.4) !important;
+    border-radius:16px;
+    position: relative;
+    z-index: 10;
+}
+
+#image-upload:hover .bg-secondary
+{
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    z-index: 1000;
+}
+#image-upload:hover div.text-center {
+    -webkit-filter: brightness(40%);
+    filter: brightness(40%);
+    z-index: -1;
+}
+
+#image-upload h2 {
+    color: black;
+}
+
+#image-upload div.text-center {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+}
+
+.upload-btn {
+    display: block;
+    position: relative;
+    width: 300px;
+    margin: auto;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    border: 0;
+    height: 60px;
+    border-radius: 5px;
+    outline: 0;
+    /* text-transform: uppercase; */
+    /* font-weight: 700; */
+}
+
+.upload-btn:after {
+    transition: 200ms all ease;
+    background: #fff;
+    text-align: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    content: 'Choose File';
+    line-height: 60px;
+    border-radius: 5px;
+}
+
+#cloud_upload {
+    width: 100%;
+    max-width: 150px;
+}
+
+#image-upload h3.text-center {
+    margin-top: 6rem;
+    font-weight: 100;
+    color: #000;
+}
+#image-upload:hover h3.text-center {
+    margin-top: 6rem;
+    font-weight: 100;
+    color: #fff;
+}
